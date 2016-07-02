@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Andrew Pilsch"]
   s.email       = ["apilsch@tamu.edu"]
-  s.homepage    = "http://andrew.pilsch.com"
+  s.homepage    = "https://github.com/oncomouse/bem_html"
   s.summary     = %q{Build BEM class tags on HTML elements from HTML attributes (bem-block, bem-element, and bem-modifiers).}
   # s.description = %q{A longer description of your extension}
 

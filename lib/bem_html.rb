@@ -11,19 +11,19 @@ class BemHtml
 				blockNode['class'] = ""
 			end
 			blockNode['class'] += " #{currentBlock}"
-			nextBlock = [currentBlock]
 			if(blockNode.attributes["bem-modifiers"])
+				nextBlock = [currentBlock]
 				JSON.parse(blockNode.attributes["bem-modifiers"].value.gsub(/\:(\w+)/,'"\1"')).each do |modifier|
 					nextBlock.push("#{currentBlock}--#{modifier}")
 					blockNode['class'] += " #{currentBlock}--#{modifier}"
 				end
 				blockNode.attributes["bem-modifiers"].remove
+			else
+				nextBlock = currentBlock
 			end
-			processingQueue = [[nextBlock, blockNode.children]]
+			processingQueue = [blockNode.children]
 			while processingQueue.length > 0
-				topQueue = processingQueue.shift
-				currentBlock = topQueue[0]
-				nodes = topQueue[1]
+				nodes = processingQueue.shift
 				nodes.each do |node|
 					next if not node.attributes
 					next if node.attributes["bem-block"]
@@ -36,13 +36,9 @@ class BemHtml
 					element = node.attributes["bem-element"]
 					node.attributes["bem-element"].remove
 					if(currentBlock.respond_to? :push)
-						nextBlock = currentBlock.map do |cb|
-							node['class'] += " #{cb}__#{element}"
-							"#{cb}__#{element}"
-						end
+						node['class'] += " #{cb}__#{element}"
 					else
-						nextBlock = "#{currentBlock}__#{element}"
-						node['class'] += " #{nextBlock}"
+						node['class'] += " #{currentBlock}__#{element}"
 					end
 				
 					if(node.attributes["bem-modifiers"])
@@ -50,7 +46,6 @@ class BemHtml
 							if(currentBlock.respond_to? :push)
 								currentBlock.each do |cb|
 									node['class'] += " #{cb}__#{element}--#{modifier}"
-									nextBlock.push("#{cb}__#{element}--#{modifier}")
 								end
 							else
 								node['class'] += " #{currentBlock}__#{element}--#{modifier}"
@@ -58,8 +53,9 @@ class BemHtml
 						end
 						node.attributes["bem-modifiers"].remove
 					end
+					node['class'] = node['class'].lstrip
 					if(node.children.length > 0)
-						processingQueue.push([nextBlock, node.children])
+						processingQueue.push(node.children)
 					end
 				end
 			end
